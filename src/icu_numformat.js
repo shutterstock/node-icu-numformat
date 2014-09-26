@@ -6,16 +6,14 @@ var styles = {
 	percent: 3
 };
 
-function Formatter(style, locale) {
-	this.numFormatter = new NumFormatter(styles[style], locale);
-}
-
 module.exports = {
 	NumberFormatter: function(locale) {
-		return new Formatter('decimal', locale);
+		return new NumFormatter(styles.decimal, locale);
 	},
 	CurrencyFormatter: function(locale) {
+		return new NumFormatter(styles.currency, locale);
 	},
 	PercentFormatter: function(locale) {
+		return new NumFormatter(styles.percent, locale);
 	}
 };

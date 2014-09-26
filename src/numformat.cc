@@ -129,7 +129,7 @@ private:
 			throw errstr.str().c_str();
 		}
 
-		return new ResultString(result, result_length);
+		return new ResultString(result, result_length - 1);
 	}
 
 	ResultString* formatCurrency(const double number, const char* currency) {
