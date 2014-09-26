@@ -20,7 +20,7 @@
     "npm": ">= 1.1"
   },
   "scripts": {
-    "test": "make test",
-    "postinstall": "make all"
+    "install": "node-gyp rebuild",
+    "test": "mocha test"
   }
 }
