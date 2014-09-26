@@ -21,7 +21,6 @@
   },
   "scripts": {
     "install": "node-gyp rebuild",
-    "test": "mocha test",
-    "postinstall": "make all"
+    "test": "mocha test"
   }
 }

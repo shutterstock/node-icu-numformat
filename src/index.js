@@ -1,4 +1,4 @@
-var NumFormatter = require('../lib/numformat.node').NumFormatter;
+var NumFormatter = require('../build/Release/numformat.node').NumFormatter;
 
 var styles = {
 	decimal: 1,
