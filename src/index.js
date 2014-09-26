@@ -1,10 +1,6 @@
 var NumFormatter = require('../build/Release/numformat.node').NumFormatter;
 
-var styles = {
-	decimal: 1,
-	currency: 2,
-	percent: 3
-};
+var styles = makeEnum('pattern', 'decimal', 'currency', 'percent', 'scientific', 'spellout', 'ordinal', 'duration');
 
 function makeEnum() {
   var enumData = {};
@@ -15,6 +11,9 @@ function makeEnum() {
 }
 
 module.exports = {
+  Formatter: function(style, locale) {
+    return new NumFormatter(styles[style], locale);
+  },
 	NumberFormatter: function(locale) {
 		return new NumFormatter(styles.decimal, locale);
 	},

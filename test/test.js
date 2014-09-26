@@ -30,3 +30,13 @@ describe('NumberFormatter', function(){
 	});
 });
 
+describe('Formatter', function() {
+  it('should allow us to spell en_US numbers', function() {
+    var formatter = Formatters.Formatter('spellout', 'en_US');
+    expect(formatter.format(1000)).to.equal('one thousand');
+  });
+  it('should allow us to get ordinal numbers', function() {
+    var formatter = Formatters.Formatter('ordinal', 'en_US');
+    expect(formatter.format(1000)).to.equal('1,000ᵗʰ');
+  });
+});

@@ -120,15 +120,6 @@ private:
 		ResultString* result;
 		try {
 			switch(n->style) {
-				case UNUM_DECIMAL:
-				case UNUM_PERCENT:
-          {
-            if (args.Length() != 1 || !args[0]->IsNumber())
-              return EXCEPTION(TypeError, "Expected a single, numeric argument");
-
-            result = n->format(args[0]->NumberValue());
-          }
-					break;
 				case UNUM_CURRENCY:
           {
             if (args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString())
@@ -138,8 +129,14 @@ private:
             result = n->formatCurrency(args[0]->NumberValue(), currency.c_str());
           }
 					break;
-				default:
-					return EXCEPTION(Error, "Unsupported style");
+        default:
+          {
+            if (args.Length() != 1 || !args[0]->IsNumber())
+              return EXCEPTION(TypeError, "Expected a single, numeric argument");
+
+            result = n->format(args[0]->NumberValue());
+          }
+					break;
 			}
 		} catch (const char* errorMessage) {
 			return EXCEPTION(Error, errorMessage);
