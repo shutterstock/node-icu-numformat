@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
+#include <iostream>
+#include <map>
 
 #include <v8.h>
 #include <node.h>
@@ -9,37 +11,50 @@
 #include <unicode/unum.h>
 #include <unicode/stringpiece.h>
 
+using namespace v8;
+using namespace std;
+
 #define EXCEPTION(type, message) \
-	ThrowException(v8::Exception::type(v8::String::New(message)))
+	ThrowException(Exception::type(String::New(message)))
 
 class NumFormatter : public node::ObjectWrap
 {
 public:
-	static void Initialize(const v8::Handle<v8::Object> target) {
-		v8::HandleScope scope;
+	static void Initialize(const Handle<Object> target) {
+		HandleScope scope;
 
-		v8::Local<v8::FunctionTemplate> constructorTemplate = v8::FunctionTemplate::New(NumFormatter::New);
+		Local<FunctionTemplate> constructorTemplate = FunctionTemplate::New(NumFormatter::New);
 
-		constructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
+		constructorTemplate->InstanceTemplate()->SetInternalFieldCount(3);
 
 		// setup methods
 		NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "format", NumFormatter::Format);
+		NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "setAttributes", NumFormatter::SetAttributes);
 
 		// export class
-		target->Set(v8::String::NewSymbol("NumFormatter"), constructorTemplate->GetFunction());
+		target->Set(String::NewSymbol("NumFormatter"), constructorTemplate->GetFunction());
 	}
 
 	// JS Constructor
-	static v8::Handle<v8::Value>
-	New(const v8::Arguments& args) {
+	static Handle<Value>
+	New(const Arguments& args) {
 		if (args.Length() < 2 || !args[0]->IsUint32() || !args[1]->IsString())
 			return EXCEPTION(TypeError, "Expected UNumberFormatStyle value for the argument");
 
 		UNumberFormatStyle style = static_cast<UNumberFormatStyle>(args[0]->Uint32Value());
-		std::string locale(*v8::String::Utf8Value(args[1]->ToString()));
+		string locale(*String::Utf8Value(args[1]->ToString()));
+
+    if(args.Length() == 3 && !args[2]->IsNull() && !args[2]->IsObject()) // FIXME
+      return EXCEPTION(TypeError, "The optional attributes argument should be an object");
 
 		try {
-			NumFormatter* n = new NumFormatter(style, locale.c_str());
+      NumFormatter* n;
+      if(args.Length() == 3) {
+        map<UNumberFormatAttribute, int32_t> attributes = ConvertAttributes(args[2]->ToObject());
+        n = new NumFormatter(style, locale.c_str()); // FIXME
+      } else {
+        n = new NumFormatter(style, locale.c_str());
+      }
 			n->Wrap(args.This()); // under GC
 		} catch (const char* errorMessage) {
 				return EXCEPTION(Error, errorMessage);
@@ -55,13 +70,19 @@ public:
 		if(U_FAILURE(err))
 			throw "Unable to open number formatter";
 	}
+
+	NumFormatter (UNumberFormatStyle s, const char* locale, map<UNumberFormatAttribute, int32_t> attributes) {
+    NumFormatter(s, locale);
+    setAttributes(attributes);
+  }
+
 	~NumFormatter () {
 		unum_close(unumber_format_);
 	}
 
 private:
 
-	class ResultString : public v8::String::ExternalStringResource {
+	class ResultString : public String::ExternalStringResource {
 	public:
 		ResultString (UChar* input, const size_t input_length) {
 			contents = input;
@@ -78,7 +99,22 @@ private:
 		size_t content_length;
 	};
 
-	static v8::Handle<v8::Value> Format(const v8::Arguments& args) {
+  static map<UNumberFormatAttribute, int32_t> ConvertAttributes(const Handle<Object> obj) {
+    map<UNumberFormatAttribute, int32_t> attrs;
+
+    const Local<Array> props = obj->GetPropertyNames();
+    const uint32_t length = props->Length();
+
+    for (uint32_t i=0 ; i<length ; ++i) {
+      const Local<Value> key   = props->Get(i);
+      const UNumberFormatAttribute attr = static_cast<UNumberFormatAttribute>(key->Uint32Value());
+      attrs[attr] = obj->Get(key)->Int32Value();
+    }
+
+    return attrs;
+  }
+
+	static Handle<Value> Format(const Arguments& args) {
 		// Extract the C++ request object from the JavaScript wrapper.
 		NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
 		ResultString* result;
@@ -86,16 +122,21 @@ private:
 			switch(n->style) {
 				case UNUM_DECIMAL:
 				case UNUM_PERCENT:
-					if (args.Length() != 1 || !args[0]->IsNumber())
-						return EXCEPTION(TypeError, "Expected a single, numeric argument");
+          {
+            if (args.Length() != 1 || !args[0]->IsNumber())
+              return EXCEPTION(TypeError, "Expected a single, numeric argument");
 
-					result = n->format(args[0]->NumberValue());
+            result = n->format(args[0]->NumberValue());
+          }
 					break;
 				case UNUM_CURRENCY:
-					if (args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString())
-						return EXCEPTION(TypeError, "Expected two arguments: number, currency");
+          {
+            if (args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString())
+              return EXCEPTION(TypeError, "Expected two arguments: number, currency");
 
-					result = n->formatCurrency(args[0]->NumberValue(), args[1]->ToString()->GetExternalAsciiStringResource()->data());
+            string currency(*String::Utf8Value(args[1]->ToString()));
+            result = n->formatCurrency(args[0]->NumberValue(), currency.c_str());
+          }
 					break;
 				default:
 					return EXCEPTION(Error, "Unsupported style");
@@ -104,59 +145,70 @@ private:
 			return EXCEPTION(Error, errorMessage);
 		}
 
-		return v8::String::NewExternal(result);
+		return String::NewExternal(result);
 	}
+
+  static Handle<Value> SetAttributes(const Arguments& args) {
+		NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
+    if(args.Length() != 1 || !args[0]->IsObject())
+      return EXCEPTION(TypeError, "Expected a single, object argument");
+
+    Handle<Object> obj = args[0]->ToObject();
+    map<UNumberFormatAttribute, int32_t> attributes = ConvertAttributes(obj);
+    n->setAttributes(attributes);
+    return args[0];
+  }
 
 	ResultString* format(const double number) {
 		UChar* result = NULL;
-		UErrorCode err = U_ZERO_ERROR;
-		uint32_t	result_length = 0;
-    uint32_t needed_length = 0;
-		uint32_t i = 0;
+		UErrorCode status = U_ZERO_ERROR;
+		uint32_t result_length = 0;
 
-		do {
-			err = U_ZERO_ERROR;
-			needed_length = unum_formatDouble(this->unumber_format_, number, result, result_length, NULL, &err);
-			result_length = needed_length + 1;
-			if(err == U_BUFFER_OVERFLOW_ERROR)
-				result=(UChar*)malloc(sizeof(UChar) * (result_length));
-			i++;
-		} while(err == U_BUFFER_OVERFLOW_ERROR && i < 2);
+    result_length = unum_formatDouble(this->unumber_format_, number, result, result_length, NULL, &status);
+    if(status == U_BUFFER_OVERFLOW_ERROR) {
+      status = U_ZERO_ERROR;
+      result = (UChar*) malloc(sizeof(UChar) * result_length);
+      unum_formatDouble(this->unumber_format_, number, result, result_length, NULL, &status);
+    }
 
-		if(U_FAILURE(err)) {
-			std::stringstream errstr;
-			errstr << "Unable to format value, error: " << err << "; result length: " << result_length;
-			throw errstr.str().c_str();
-		}
-
-		return new ResultString(result, result_length - 1);
+		return new ResultString(result, result_length);
 	}
 
 	ResultString* formatCurrency(const double number, const char* currency) {
 		UChar* result = NULL;
-		UErrorCode err = U_ZERO_ERROR;
-		int	result_length = 0;
+		UErrorCode status = U_ZERO_ERROR;
+		uint32_t result_length = 0;
 
-		UnicodeString ucurrency = UnicodeString::fromUTF8(StringPiece(currency));
-		do {
-			result_length = unum_formatDoubleCurrency(this->unumber_format_, number, ucurrency.getBuffer(3), result, result_length, NULL, &err);
-		} while(err == U_BUFFER_OVERFLOW_ERROR);
+    UChar* ucurrency_ = UnicodeString::fromUTF8(StringPiece(currency)).getBuffer(3);
 
-		if(U_FAILURE(err)) {
-			std::stringstream errstr;
-			errstr << "Unable to format value, error: " << err << "; result length: " << result_length;
-			throw errstr.str().c_str();
-		}
+
+    result_length = unum_formatDoubleCurrency(this->unumber_format_, number, ucurrency_, result, result_length, NULL, &status);
+    if(status == U_BUFFER_OVERFLOW_ERROR) {
+      status = U_ZERO_ERROR;
+      result = (UChar*) malloc(sizeof(UChar) * result_length);
+      unum_formatDoubleCurrency(this->unumber_format_, number, ucurrency_, result, result_length, NULL, &status);
+      if(U_FAILURE(status))
+        throw "error formatting currency";
+    }
 
 		return new ResultString(result, result_length);
 	}
+
+  void setAttributes(map<UNumberFormatAttribute, int32_t> attrs) {
+    map<UNumberFormatAttribute, int32_t>::iterator iter;
+
+    for(iter = attrs.begin(); iter != attrs.end(); ++iter) {
+      unum_setAttribute(unumber_format_, iter->first, iter->second); // FIXME: segfaults
+    }
+    return;
+  }
 
 	UNumberFormat* unumber_format_;
 	UNumberFormatStyle style;
 };
 
 extern "C"
-void init(v8::Handle<v8::Object> target) {
+void init(Handle<Object> target) {
 	NumFormatter::Initialize(target);
 }
 

@@ -13,9 +13,12 @@ var localeFormats = {
 	de_CH: [
 		[1, '1'],
 		[1234.56, '1\'234.56'],
+	],
+	hi_IN: [
+		[1, '१'],
+		[1000000, '१०,००,०००']
 	]
 };
-
 describe('NumberFormatter', function(){
 	it('should format per locale', function(){
 		Object.keys(localeFormats).forEach(function(locale) {
@@ -26,3 +29,4 @@ describe('NumberFormatter', function(){
 		});
 	});
 });
+
