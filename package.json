@@ -1,0 +1,25 @@
+{
+  "author": "Brian Phillips (bphillips@shutterstock.com)",
+  "name": "icu-numformat",
+  "description": "Node.js bindings to the ICU (50.1) project number formatting module. Useful for formatting (or parsing) numbers to/from various formats.",
+  "version": "0.0.1",
+  "homepage": "https://github.com/brianphillips/node-icu-numformat",
+  "repository": {
+    "url": "git://github.com/brianphillips/node-icu-numformat.git"
+  },
+  "main": "src/icu_numformat.js",
+  "dependencies": {},
+  "optionalDependencies": {},
+  "devDependencies": {
+    "node-gyp": "~0.8.1",
+    "chai": "latest"
+  },
+  "engines": {
+    "node": ">= 0.6",
+    "npm": ">= 1.1"
+  },
+  "scripts": {
+    "test": "make test",
+    "postinstall": "make all"
+  }
+}
