@@ -1,7 +1,7 @@
 # Example
 
 ```Javascript
-var Formatters = require('../src/index.js');
+var Formatters = require('icu-numformat');
 var numberFormatter = Formatters.NumberFormatter('en_US');
 console.log(numberFormatter.format(1234.56)); // 1,234.56
 
