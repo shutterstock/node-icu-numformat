@@ -4,7 +4,8 @@ var Formatter = require('../src/index.js');
 var localeFormats = {
 	en_US: [
 		[1, '1'],
-		[1234.56, '1,234.56']
+		[1234.56, '1,234.56'],
+		[1234.56789, '1,234.568'],
 	],
 	fr_FR: [
 		[1, '1'],
@@ -42,5 +43,10 @@ describe('Formatter', function() {
 
   it('should allow us to format duration values', function() {
     expect(formatter.format('duration', 60 * 60 + (23 * 60) + 45)).to.equal('1:23:45');
+  });
+  it('should allow us to set attributes', function() {
+    var formatter = new Formatter(locale);
+    formatter.setAttributes({max_fraction_digits: 4});
+    expect(formatter.formatDecimal(123.1234)).to.equal('123.1234');
   });
 });

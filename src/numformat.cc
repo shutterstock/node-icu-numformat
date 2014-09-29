@@ -44,14 +44,14 @@ public:
 		UNumberFormatStyle style = static_cast<UNumberFormatStyle>(args[0]->Uint32Value());
 		string locale(*String::Utf8Value(args[1]->ToString()));
 
-    if(args.Length() == 3 && !args[2]->IsNull() && !args[2]->IsObject()) // FIXME
+    if(args.Length() == 3 && !args[2]->IsNull() && !args[2]->IsObject())
       return EXCEPTION(TypeError, "The optional attributes argument should be an object");
 
 		try {
       NumFormatter* n;
       if(args.Length() == 3) {
         map<UNumberFormatAttribute, int32_t> attributes = ConvertAttributes(args[2]->ToObject());
-        n = new NumFormatter(style, locale.c_str()); // FIXME
+        n = new NumFormatter(style, locale.c_str(), attributes);
       } else {
         n = new NumFormatter(style, locale.c_str());
       }
@@ -196,7 +196,9 @@ private:
     map<UNumberFormatAttribute, int32_t>::iterator iter;
 
     for(iter = attrs.begin(); iter != attrs.end(); ++iter) {
-      unum_setAttribute(unumber_format_, iter->first, iter->second); // FIXME: segfaults
+      cout << "Attr: " << UNUM_DECIMAL_ALWAYS_SHOWN << "\n";
+      cout << "Current Value: " << unum_getAttribute(unumber_format_, UNUM_DECIMAL_ALWAYS_SHOWN) << "\n";
+      unum_setAttribute(unumber_format_, iter->first, iter->second);
     }
     return;
   }
