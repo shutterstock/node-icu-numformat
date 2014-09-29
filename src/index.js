@@ -31,7 +31,6 @@ function factory(obj, type) {
   if(!formatters[type]) {
     if(obj._attrs) {
       var converted = convertAttrs(obj._attrs);
-      console.log(converted);
       formatters[type] = new NumFormatter(type, obj.locale, converted);
     } else {
       formatters[type] = new NumFormatter(type, obj.locale);

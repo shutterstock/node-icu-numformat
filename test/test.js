@@ -45,8 +45,9 @@ describe('Formatter', function() {
     expect(formatter.format('duration', 60 * 60 + (23 * 60) + 45)).to.equal('1:23:45');
   });
   it('should allow us to set attributes', function() {
-    var formatter = new Formatter(locale);
-    formatter.setAttributes({max_fraction_digits: 4});
-    expect(formatter.formatDecimal(123.1234)).to.equal('123.1234');
+    var formatter = new Formatter(locale, {max_fraction_digits: 4});
+    expect(formatter.formatDecimal(123.1294)).to.equal('123.1294');
+    formatter.setAttributes({max_fraction_digits: 2});
+    expect(formatter.formatDecimal(123.1294)).to.equal('123.13');
   });
 });
