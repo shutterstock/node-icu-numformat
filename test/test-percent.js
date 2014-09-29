@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var Formatters = require('../src/index.js');
+var Formatter = require('../src/index.js');
 
 var localeFormats = {
 	en_US: [
@@ -11,10 +11,10 @@ var localeFormats = {
 
 describe('PercentFormatter', function() {
   Object.keys(localeFormats).forEach(function(locale) {
+    var formatter = new Formatter(locale);
     it('should format ' + locale + ' percents as expected', function() {
-			var formatter = Formatters.PercentFormatter(locale);
 			localeFormats[locale].forEach(function(pair) {
-				expect(formatter.format(pair[0])).to.equal(pair[1]);
+				expect(formatter.formatPercent(pair[0])).to.equal(pair[1]);
 			});
 		});
 	});

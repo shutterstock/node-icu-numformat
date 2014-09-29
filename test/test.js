@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var Formatters = require('../src/index.js');
+var Formatter = require('../src/index.js');
 
 var localeFormats = {
 	en_US: [
@@ -22,21 +22,25 @@ var localeFormats = {
 describe('NumberFormatter', function(){
 	it('should format per locale', function(){
 		Object.keys(localeFormats).forEach(function(locale) {
-			var formatter = Formatters.NumberFormatter(locale);
+      var formatter = new Formatter(locale);
 			localeFormats[locale].forEach(function(pair) {
-				expect(formatter.format(pair[0])).to.equal(pair[1]);
+				expect(formatter.formatDecimal(pair[0])).to.equal(pair[1]);
 			});
 		});
 	});
 });
 
 describe('Formatter', function() {
+  var locale = 'en_US';
+  var formatter = new Formatter(locale);
   it('should allow us to spell en_US numbers', function() {
-    var formatter = Formatters.Formatter('spellout', 'en_US');
-    expect(formatter.format(1000)).to.equal('one thousand');
+    expect(formatter.formatAsWords(1000)).to.equal('one thousand');
   });
   it('should allow us to get ordinal numbers', function() {
-    var formatter = Formatters.Formatter('ordinal', 'en_US');
-    expect(formatter.format(1000)).to.equal('1,000ᵗʰ');
+    expect(formatter.formatAsOrdinal(1000)).to.equal('1,000ᵗʰ');
+  });
+
+  it('should allow us to format duration values', function() {
+    expect(formatter.format('duration', 60 * 60 + (23 * 60) + 45)).to.equal('1:23:45');
   });
 });
