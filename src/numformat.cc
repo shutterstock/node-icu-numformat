@@ -9,7 +9,7 @@
 
 #include <unicode/errorcode.h>
 #include <unicode/unum.h>
-#include <unicode/stringpiece.h>
+#include <unicode/putil.h>
 
 using namespace v8;
 using namespace std;
@@ -176,14 +176,15 @@ private:
 		UErrorCode status = U_ZERO_ERROR;
 		uint32_t result_length = 0;
 
-    UChar* ucurrency_ = UnicodeString::fromUTF8(StringPiece(currency)).getBuffer(3);
+    UChar ucurrency[4];
+    u_charsToUChars(currency, ucurrency, 4);
 
 
-    result_length = unum_formatDoubleCurrency(this->unumber_format_, number, ucurrency_, result, result_length, NULL, &status);
+    result_length = unum_formatDoubleCurrency(this->unumber_format_, number, ucurrency, result, result_length, NULL, &status);
     if(status == U_BUFFER_OVERFLOW_ERROR) {
       status = U_ZERO_ERROR;
       result = (UChar*) malloc(sizeof(UChar) * result_length);
-      unum_formatDoubleCurrency(this->unumber_format_, number, ucurrency_, result, result_length, NULL, &status);
+      unum_formatDoubleCurrency(this->unumber_format_, number, ucurrency, result, result_length, NULL, &status);
       if(U_FAILURE(status))
         throw "error formatting currency";
     }
