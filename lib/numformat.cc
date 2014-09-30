@@ -11,6 +11,7 @@
 #include <unicode/errorcode.h>
 #include <unicode/unum.h>
 #include <unicode/putil.h>
+#include <unicode/uversion.h>
 
 using namespace v8;
 using namespace std;
@@ -22,30 +23,31 @@ class NumFormatter : public node::ObjectWrap
 {
 public:
   static void Initialize(const Handle<Object> target) {
-    HandleScope scope;
+    NanScope();
 
     Local<FunctionTemplate> constructorTemplate = NanNew<FunctionTemplate>(NumFormatter::New);
 
-    constructorTemplate->InstanceTemplate()->SetInternalFieldCount(3);
+    constructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 
     // setup methods
     NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "format", NumFormatter::Format);
     NODE_SET_PROTOTYPE_METHOD(constructorTemplate, "setAttributes", NumFormatter::SetAttributes);
 
     // export class
-    target->Set(String::NewSymbol("NumFormatter"), constructorTemplate->GetFunction());
+    target->Set(NanNew("NumFormatter"), constructorTemplate->GetFunction());
+    target->Set(NanNew("VERSION"), NanNew(U_ICU_VERSION));
   }
 
   // JS Constructor
   static NAN_METHOD(New) {
     if (args.Length() < 2 || !args[0]->IsUint32() || !args[1]->IsString())
-      return EXCEPTION(TypeError, "Expected UNumberFormatStyle value for the argument");
+      return NanThrowTypeError("Expected UNumberFormatStyle value for the argument");
 
     UNumberFormatStyle style = static_cast<UNumberFormatStyle>(args[0]->Uint32Value());
     string locale(*String::Utf8Value(args[1]->ToString()));
 
     if(args.Length() == 3 && !args[2]->IsNull() && !args[2]->IsObject())
-      return EXCEPTION(TypeError, "The optional attributes argument should be an object");
+      return NanThrowTypeError("The optional attributes argument should be an object");
 
     try {
       NumFormatter *n;
@@ -58,7 +60,7 @@ public:
       }
       n->Wrap(args.This()); // under GC
     } catch (const char* errorMessage) {
-        return EXCEPTION(Error, errorMessage);
+        return NanThrowError(errorMessage);
     }
 
     return args.This();
@@ -120,7 +122,7 @@ private:
   }
 
   static NAN_METHOD(Format) {
-    HandleScope scope;
+    NanScope();
     // Extract the C++ request object from the JavaScript wrapper.
     NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
     ResultString* result;
@@ -129,7 +131,7 @@ private:
         case UNUM_CURRENCY:
           {
             if (args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString())
-              return EXCEPTION(TypeError, "Expected two arguments: number, currency");
+              return NanThrowTypeError("Expected two arguments: number, currency");
 
             string currency(*String::Utf8Value(args[1]->ToString()));
             result = n->formatCurrency(args[0]->NumberValue(), currency.c_str());
@@ -138,29 +140,29 @@ private:
         default:
           {
             if (args.Length() != 1 || !args[0]->IsNumber())
-              return EXCEPTION(TypeError, "Expected a single, numeric argument");
+              return NanThrowTypeError("Expected a single, numeric argument");
 
             result = n->format(args[0]->NumberValue());
           }
           break;
       }
     } catch (const char* errorMessage) {
-      return EXCEPTION(Error, errorMessage);
+      return NanThrowError(errorMessage);
     }
 
-    return scope.Close(String::NewExternal(result));
+    NanReturnValue(String::NewExternal(result));
   }
 
   static NAN_METHOD(SetAttributes) {
-    HandleScope scope;
+    NanScope();
     NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
     if(args.Length() != 1 || !args[0]->IsObject())
-      return EXCEPTION(TypeError, "Expected a single, object argument");
+      return NanThrowTypeError("Expected a single, object argument");
 
     Handle<Object> obj = args[0]->ToObject();
     map<UNumberFormatAttribute, int32_t> attributes = ConvertAttributes(obj);
     n->setAttributes(attributes);
-    return scope.Close(args[0]);
+    NanReturnValue(args[0]);
   }
 
   ResultString* format(const double number) {

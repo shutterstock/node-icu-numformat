@@ -1,5 +1,6 @@
 var expect = require('chai').expect;
 var Formatter = require('../lib/index.js');
+console.log("# ICU Version: " + Formatter.icuVersion);
 
 var localeFormats = {
 	en_US: [
