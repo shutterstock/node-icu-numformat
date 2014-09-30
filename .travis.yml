@@ -1,9 +1,8 @@
 language: node_js
 
 before_install:
-  - lsb_release -a
   - sudo apt-get update -qq
-  - sudo apt-get install -y icu-tools
+  - sudo apt-get install -y libicu-dev
 
 node_js:
   - "0.11"
