@@ -48,12 +48,13 @@ public:
       return EXCEPTION(TypeError, "The optional attributes argument should be an object");
 
     try {
-      NumFormatter* n;
+      NumFormatter *n;
+      const char * locale_cstr = locale.c_str();
       if(args.Length() == 3) {
         map<UNumberFormatAttribute, int32_t> attributes = ConvertAttributes(args[2]->ToObject());
-        n = new NumFormatter(style, locale.c_str(), attributes);
+        n = new NumFormatter(style, locale_cstr, attributes);
       } else {
-        n = new NumFormatter(style, locale.c_str());
+        n = new NumFormatter(style, locale_cstr);
       }
       n->Wrap(args.This()); // under GC
     } catch (const char* errorMessage) {
@@ -119,6 +120,7 @@ private:
   }
 
   static Handle<Value> Format(const Arguments& args) {
+    HandleScope scope;
     // Extract the C++ request object from the JavaScript wrapper.
     NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
     ResultString* result;
@@ -146,10 +148,11 @@ private:
       return EXCEPTION(Error, errorMessage);
     }
 
-    return String::NewExternal(result);
+    return scope.Close(String::NewExternal(result));
   }
 
   static Handle<Value> SetAttributes(const Arguments& args) {
+    HandleScope scope;
     NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
     if(args.Length() != 1 || !args[0]->IsObject())
       return EXCEPTION(TypeError, "Expected a single, object argument");
@@ -157,7 +160,7 @@ private:
     Handle<Object> obj = args[0]->ToObject();
     map<UNumberFormatAttribute, int32_t> attributes = ConvertAttributes(obj);
     n->setAttributes(attributes);
-    return args[0];
+    return scope.Close(args[0]);
   }
 
   ResultString* format(const double number) {
