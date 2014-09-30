@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "numformat",
-      "sources": ["src/numformat.cc"],
+      "sources": ["lib/numformat.cc"],
       "libraries": ["<!@(icu-config --ldflags)"],
       "cflags": ["<!@(icu-config --cppflags)"],
 			'cflags_cc!': [ '-fno-exceptions' ],

@@ -7,8 +7,11 @@
   "repository": {
     "url": "git://github.com/brianphillips/node-icu-numformat.git"
   },
-  "main": "src/icu_numformat.js",
-  "dependencies": {},
+  "main": "lib/icu_numformat.js",
+  "dependencies": {
+    "bindings": "1.0.0",
+    "nan": "1.3.0"
+  },
   "optionalDependencies": {},
   "devDependencies": {
     "node-gyp": "~0.8.1",
