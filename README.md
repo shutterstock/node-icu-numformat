@@ -1,3 +1,7 @@
+# Summary
+
+This node.js module provides bindings to the libicu number formatting functions.
+
 # Example
 
 ```Javascript
