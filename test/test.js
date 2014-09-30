@@ -38,8 +38,8 @@ describe('Formatter', function() {
   it('should allow us to spell en_US numbers', function() {
     expect(formatter.formatAsWords(1000)).to.equal('one thousand');
   });
-  it.skip('should allow us to get ordinal numbers', function() {
-    expect(formatter.formatAsOrdinal(1000)).to.equal('1,000th');
+  it('should allow us to get ordinal numbers', function() {
+    expect(formatter.formatAsOrdinal(1000)).to.match(/^1,000(th|ᵗʰ)$/);
   });
 
   it('should allow us to format duration values', function() {
@@ -55,7 +55,7 @@ describe('Formatter', function() {
   describe('errors', function() {
     var formatter = new Formatter('en');
     it('should throw exceptions', function() {
-      expect(function() { formatter.format('decimal'); }).to.throw(TypeError, /Expected a single, numeric argument/);
+      expect(function() { formatter.format('decimal'); }).to.throw(TypeError, /Argument 1 must be a number/);
     });
   });
 });

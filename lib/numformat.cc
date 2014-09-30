@@ -16,9 +16,6 @@
 using namespace v8;
 using namespace std;
 
-#define EXCEPTION(type, message) \
-  ThrowException(Exception::type(NanNew<String>(message)))
-
 class NumFormatter : public node::ObjectWrap
 {
 public:
@@ -41,14 +38,26 @@ public:
   // JS Constructor
   static NAN_METHOD(New) {
     NanScope();
-    if (args.Length() < 2 || !args[0]->IsUint32() || !args[1]->IsString())
-      return NanThrowTypeError("Expected UNumberFormatStyle value for the argument");
+    if (args.Length() < 2) {
+      NanThrowTypeError("Expected at least two arguments (style, locale)");
+      NanReturnUndefined();
+    }
+    if (!args[0]->IsUint32()) {
+      NanThrowTypeError("Argument 1 should be an integer (the style of formatter)");
+      NanReturnUndefined();
+    }
+    if (!args[1]->IsString()) {
+      NanThrowTypeError("Argument 2 should be a string (the locale)");
+      NanReturnUndefined();
+    }
+
+    if (args.Length() == 3 && !args[2]->IsNull() && !args[2]->IsObject()) {
+      NanThrowTypeError("The third argument is optional but should be an object");
+      NanReturnUndefined();
+    }
 
     UNumberFormatStyle style = static_cast<UNumberFormatStyle>(args[0]->Uint32Value());
     string locale(*String::Utf8Value(args[1]->ToString()));
-
-    if(args.Length() == 3 && !args[2]->IsNull() && !args[2]->IsObject())
-      return NanThrowTypeError("The optional attributes argument should be an object");
 
     try {
       NumFormatter *n;
@@ -61,7 +70,8 @@ public:
       }
       n->Wrap(args.This()); // under GC
     } catch (const char* errorMessage) {
-        return NanThrowError(errorMessage);
+      NanThrowError(errorMessage);
+      NanReturnUndefined();
     }
 
     NanReturnValue(args.This());
@@ -131,8 +141,20 @@ private:
       switch(n->style) {
         case UNUM_CURRENCY:
           {
-            if (args.Length() != 2 || !args[0]->IsNumber() || !args[1]->IsString())
-              return NanThrowTypeError("Expected two arguments: number, currency");
+            if (args.Length() != 2) {
+              NanThrowTypeError("Expected at least two arguments (style, locale)");
+              NanReturnUndefined();
+            }
+
+            if (!args[0]->IsNumber()) {
+              NanThrowTypeError("Argument 1 must be a number");
+              NanReturnUndefined();
+            }
+
+            if (!args[1]->IsString()) {
+              NanThrowTypeError("Argument 2 must be a string (the currency)");
+              NanReturnUndefined();
+            }
 
             string currency(*String::Utf8Value(args[1]->ToString()));
             result = n->formatCurrency(args[0]->NumberValue(), currency.c_str());
@@ -140,15 +162,23 @@ private:
           break;
         default:
           {
-            if (args.Length() != 1 || !args[0]->IsNumber())
-              return NanThrowTypeError("Expected a single, numeric argument");
+            if (args.Length() != 1) {
+              NanThrowTypeError("Expected exactly two arguments (style, locale)");
+              NanReturnUndefined();
+            }
+
+            if (!args[0]->IsNumber()) {
+              NanThrowTypeError("Argument 1 must be a number");
+              NanReturnUndefined();
+            }
 
             result = n->format(args[0]->NumberValue());
           }
           break;
       }
     } catch (const char* errorMessage) {
-      return NanThrowError(errorMessage);
+      NanThrowError(errorMessage);
+      NanReturnUndefined();
     }
 
     NanReturnValue(NanNew(result));
@@ -157,8 +187,15 @@ private:
   static NAN_METHOD(SetAttributes) {
     NanScope();
     NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
-    if(args.Length() != 1 || !args[0]->IsObject())
-      return NanThrowTypeError("Expected a single, object argument");
+    if (args.Length() != 1) {
+      NanThrowTypeError("Expected exactly one argument");
+      NanReturnUndefined();
+    }
+
+    if (!args[0]->IsObject()) {
+      NanThrowTypeError("Argument 1 must be an object");
+      NanReturnUndefined();
+    }
 
     Handle<Object> obj = args[0]->ToObject();
     map<UNumberFormatAttribute, int32_t> attributes = ConvertAttributes(obj);
