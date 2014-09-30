@@ -40,6 +40,7 @@ public:
 
   // JS Constructor
   static NAN_METHOD(New) {
+    NanScope();
     if (args.Length() < 2 || !args[0]->IsUint32() || !args[1]->IsString())
       return NanThrowTypeError("Expected UNumberFormatStyle value for the argument");
 
@@ -63,7 +64,7 @@ public:
         return NanThrowError(errorMessage);
     }
 
-    return args.This();
+    NanReturnValue(args.This());
   }
 
   NumFormatter (UNumberFormatStyle s, const char* locale) {
@@ -150,7 +151,7 @@ private:
       return NanThrowError(errorMessage);
     }
 
-    NanReturnValue(String::NewExternal(result));
+    NanReturnValue(NanNew(result));
   }
 
   static NAN_METHOD(SetAttributes) {
