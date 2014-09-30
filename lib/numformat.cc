@@ -6,6 +6,7 @@
 
 #include <v8.h>
 #include <node.h>
+#include <nan.h>
 
 #include <unicode/errorcode.h>
 #include <unicode/unum.h>
@@ -15,7 +16,7 @@ using namespace v8;
 using namespace std;
 
 #define EXCEPTION(type, message) \
-  ThrowException(Exception::type(String::New(message)))
+  ThrowException(Exception::type(NanNew<String>(message)))
 
 class NumFormatter : public node::ObjectWrap
 {
@@ -23,7 +24,7 @@ public:
   static void Initialize(const Handle<Object> target) {
     HandleScope scope;
 
-    Local<FunctionTemplate> constructorTemplate = FunctionTemplate::New(NumFormatter::New);
+    Local<FunctionTemplate> constructorTemplate = NanNew<FunctionTemplate>(NumFormatter::New);
 
     constructorTemplate->InstanceTemplate()->SetInternalFieldCount(3);
 
@@ -36,8 +37,7 @@ public:
   }
 
   // JS Constructor
-  static Handle<Value>
-  New(const Arguments& args) {
+  static NAN_METHOD(New) {
     if (args.Length() < 2 || !args[0]->IsUint32() || !args[1]->IsString())
       return EXCEPTION(TypeError, "Expected UNumberFormatStyle value for the argument");
 
@@ -119,7 +119,7 @@ private:
     return attrs;
   }
 
-  static Handle<Value> Format(const Arguments& args) {
+  static NAN_METHOD(Format) {
     HandleScope scope;
     // Extract the C++ request object from the JavaScript wrapper.
     NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
@@ -151,7 +151,7 @@ private:
     return scope.Close(String::NewExternal(result));
   }
 
-  static Handle<Value> SetAttributes(const Arguments& args) {
+  static NAN_METHOD(SetAttributes) {
     HandleScope scope;
     NumFormatter* n = node::ObjectWrap::Unwrap<NumFormatter>(args.This());
     if(args.Length() != 1 || !args[0]->IsObject())

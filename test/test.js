@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var Formatter = require('../src/index.js');
+var Formatter = require('../lib/index.js');
 
 var localeFormats = {
 	en_US: [

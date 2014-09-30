@@ -3,6 +3,9 @@
     {
       "target_name": "numformat",
       "sources": ["lib/numformat.cc"],
+      'include_dirs' : [
+        "<!(node -e \"require('nan')\")"
+      ],
       "libraries": ["<!@(icu-config --ldflags)"],
       "cflags": ["<!@(icu-config --cppflags)"],
 			'cflags_cc!': [ '-fno-exceptions' ],
