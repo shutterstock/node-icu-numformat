@@ -1,7 +1,7 @@
 {
   "author": "Brian Phillips (bphillips@shutterstock.com)",
   "name": "icu-numformat",
-  "description": "Node.js bindings to the ICU (50.1) project number formatting module. Useful for formatting (or parsing) numbers to/from various formats.",
+  "description": "Node.js bindings to the ICU number formatting functions. Useful for formatting numbers in various ways (decimal, currency, percents, ordinals, etc)",
   "version": "0.0.1",
   "homepage": "https://github.com/brianphillips/node-icu-numformat",
   "repository": {
@@ -14,15 +14,28 @@
   },
   "optionalDependencies": {},
   "devDependencies": {
-    "node-gyp": "~0.8.1",
-    "chai": "*",
-    "mocha": "*"
+    "node-gyp": "1.0.2",
+    "chai": "1.9.2",
+    "mocha": "1.21.4"
   },
   "engines": {
     "node": ">= 0.6",
     "npm": ">= 1.1"
   },
   "scripts": {
-    "test": "node-gyp configure build && mocha test"
-  }
+    "test": "node-gyp configure build && mocha test",
+    "install": "node-gyp rebuild"
+  },
+  "gypfile": true,
+  "bugs": {
+    "url": "https://github.com/brianphillips/node-icu-numformat/issues"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "icu",
+    "cldr"
+  ],
+  "license": "ISC"
 }
