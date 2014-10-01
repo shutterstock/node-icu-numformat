@@ -14,9 +14,9 @@
   },
   "optionalDependencies": {},
   "devDependencies": {
-    "node-gyp": "1.0.2",
-    "chai": "1.9.2",
-    "mocha": "1.21.4"
+    "node-gyp": "~0.8.1",
+    "chai": "*",
+    "mocha": "*"
   },
   "engines": {
     "node": ">= 0.6",
