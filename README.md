@@ -23,9 +23,58 @@ console.log(preciseEn.formatDecimal(1234.5678)); // 1,234.5678
 
 ## Installation
 
-**NOTE:** This module relies on the `icu-config` tool being installed somewhere in your `PATH`. This typically comes in a package like `libicu-dev` (ubuntu/debian) or `icu4c` (brew). You can also [download](http://site.icu-project.org/download) and [install](http://userguide.icu-project.org/icufaq) the package from source.
+### Prerequisites
 
-Assuming you've completed the above, you may then install the node module with npm:
+This module relies on the `icu-config` tool being installed somewhere
+in your `PATH`. Installing this vary by system. Here are some examples
+to get you started (courtesy of the installation instructions on
+https://github.com/mooz/node-icu-charset-detector):
+
+#### Linux
+
+* Debian (Ubuntu)
+
+    ```apt-get install libicu-dev```
+
+* Gentoo
+
+    ```emerge icu```
+    
+* Fedora/CentOS
+
+    ```yum install libicu-devel```
+
+
+#### OSX
+
+* MacPorts
+
+    ```port install icu +devel```
+
+* Homebrew
+
+    ```shell
+    brew install icu4c
+    ln -s /usr/local/Cellar/icu4c/<VERSION>/bin/icu-config /usr/local/bin/icu-config
+    ln -s /usr/local/Cellar/icu4c/<VERSION>/include/unicode /usr/local/include
+    ```
+
+    If experiencing issues with 'homebrew' installing version 50.1 of icu4c, try the following:
+
+    ```shell
+    brew search icu4c
+    brew tap homebrew/versions
+    brew versions icu4c
+    cd $(brew --prefix) && git pull --rebase
+    git checkout c25fd2f $(brew --prefix)/Library/Formula/icu4c.rb
+    brew install icu4c
+    ```
+
+* From source - [Download](http://www.icu-project.org/download/) and follow instructions in the included README
+
+### NPM installation
+
+After installing the prerequisite C library, you may then install the node module with npm:
 
 ```
 $ npm install icu-numformat

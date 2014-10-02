@@ -11,7 +11,10 @@
 			'cflags_cc!': [ '-fno-exceptions' ],
       "conditions": [
         ['OS=="mac"', {
-          "OTHER_CFLAGS": ["<!@(icu-config --cppflags)"]
+          "OTHER_CFLAGS": ["<!@(icu-config --cppflags)"],
+          "xcode_settings": {
+            "GCC_ENABLE_CPP_EXCEPTIONS": "YES"
+          }
         }]
       ]
     }
