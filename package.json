@@ -3,9 +3,9 @@
   "name": "icu-numformat",
   "description": "Node.js bindings to the ICU number formatting functions. Useful for formatting numbers in various ways (decimal, currency, percents, ordinals, etc)",
   "version": "0.0.1",
-  "homepage": "https://github.com/brianphillips/node-icu-numformat",
+  "homepage": "https://github.com/shutterstock/node-icu-numformat",
   "repository": {
-    "url": "git://github.com/brianphillips/node-icu-numformat.git"
+    "url": "git://github.com/shutterstock/node-icu-numformat.git"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -28,7 +28,7 @@
   },
   "gypfile": true,
   "bugs": {
-    "url": "https://github.com/brianphillips/node-icu-numformat/issues"
+    "url": "https://github.com/shutterstock/node-icu-numformat/issues"
   },
   "directories": {
     "test": "test"
