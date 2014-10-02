@@ -2,6 +2,10 @@
 
 This module provides bindings to the [libicu](http://site.icu-project.org/) [number formatting](http://userguide.icu-project.org/formatparse/numbers) functions.
 
+## Status
+
+[![Build Status](https://travis-ci.org/shutterstock/node-icu-numformat.svg)](https://travis-ci.org/shutterstock/node-icu-numformat)
+
 ## Example
 
 ```Javascript
