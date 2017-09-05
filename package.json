@@ -37,5 +37,5 @@
     "icu",
     "cldr"
   ],
-  "license": "ISC"
+  "license": "MIT"
 }
