@@ -1,10 +1,25 @@
-# Summary
+# node-icu-numformat
+
+[![Build Status](https://travis-ci.org/shutterstock/node-icu-numformat.svg)](https://travis-ci.org/shutterstock/node-icu-numformat)
+
+> Node.JS bindings to libicu number formatting functions
 
 This module provides bindings to the [libicu](http://site.icu-project.org/) [number formatting](http://userguide.icu-project.org/formatparse/numbers) functions.
 
-## Status
+## Table of Contents
 
-[![Build Status](https://travis-ci.org/shutterstock/node-icu-numformat.svg)](https://travis-ci.org/shutterstock/node-icu-numformat)
+- [Example](#example)
+- [Install](#install)
+	- [Prerequisites](#prerequisites)
+		- [Linux](#linux)
+		- [OSX](#osx)
+	- [NPM installation](#npm-installation)
+- [Creating a Formatter Object](#creating-a-formatter-object)
+- [Formatting Values](#formatting-values)
+- [Author](#author)
+- [Contribute](#contribute)
+- [License](#license)
+
 
 ## Example
 
@@ -21,7 +36,7 @@ var preciseEn = new Formatter('en_US', { max_fraction_digits: 4 });
 console.log(preciseEn.formatDecimal(1234.5678)); // 1,234.5678
 ```
 
-## Installation
+## Install
 
 ### Prerequisites
 
@@ -160,9 +175,13 @@ formatter.formatScientific(1234.56); // en_US: 1.23456E3
 formatter.formatAsDuration(300); // en_US: 5:00
 ```
 
-# Author
+## Author
 
 This library was written by Brian Phillips at [Shutterstock](http://www.shutterstock.com)
+
+## Contribute
+
+Please do! Check out the [contributing guide](CONTRIBUTING.md).
 
 ## License
 
