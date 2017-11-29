@@ -37,5 +37,10 @@
     "icu",
     "cldr"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "contributors": [
+    "Brian Phillips <bphillips@shutterstock.com>",
+    "Richard Littauer <richard.littauer@gmail.com>",
+    "Zubin Tiku <ztiku@dev-code02.nj01.shuttercloud.net>"
+  ]
 }
